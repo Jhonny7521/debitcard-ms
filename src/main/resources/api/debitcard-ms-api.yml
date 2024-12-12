@@ -250,7 +250,7 @@ components:
           format: date-time
           description: Fecha de creación de la tarjeta
         active:
-          type: boolean
+          type: string
           description: Estado de activación de la tarjeta
 
     AccountAssociationRequestDto:
@@ -323,7 +323,7 @@ components:
           type: number
           format: double
           description: Saldo actual disponible
-        lastUpdated:
+        lastUpdateDate:
           type: string
           format: date-time
           description: Fecha y hora de la última actualización del saldo

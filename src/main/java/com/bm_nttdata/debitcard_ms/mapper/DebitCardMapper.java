@@ -3,11 +3,10 @@ package com.bm_nttdata.debitcard_ms.mapper;
 import com.bm_nttdata.debitcard_ms.entity.DebitCard;
 import com.bm_nttdata.debitcard_ms.model.DebitCardRequestDto;
 import com.bm_nttdata.debitcard_ms.model.DebitCardResponseDto;
-import org.mapstruct.Mapper;
-
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import org.mapstruct.Mapper;
 
 /**
  * Interfaz de mapeo para la conversión entre objetos relacionados con Customer.
@@ -22,7 +21,7 @@ public interface DebitCardMapper {
      * @param debitCardRequest DTO con los datos de solicitud de una tarjeta de débito
      * @return Entidad de tarjeta de débito
      */
-    DebitCard debitCardEntityToDebitCardDto(DebitCardRequestDto debitCardRequest);
+    DebitCard debitCardRequestToDebitCardEntity(DebitCardRequestDto debitCardRequest);
 
     /**
      * Convierte una entidad DebitCard a DebitCardResponseDto.

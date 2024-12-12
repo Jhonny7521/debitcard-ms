@@ -1,5 +1,6 @@
 package com.bm_nttdata.debitcard_ms.entity;
 
+import com.bm_nttdata.debitcard_ms.entity.enums.CardStatusEnum;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -27,7 +28,7 @@ public class DebitCard {
     private String ccvCode;
     private String cardPin;
     private LocalDateTime creationDate;
-    private boolean active;
+    private CardStatusEnum active;
 
 }
 
