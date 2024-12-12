@@ -1,0 +1,233 @@
+openapi: 3.0.3
+info:
+  title: Servicio API de Tarjeta de Débito
+  description: API para la gestión de tarjetas de débito
+  version: 1.0.0
+servers:
+  - url: http://localhost:8087/api/v1
+    description: Servidor local
+paths:
+  /debit-cards:
+    post:
+      tags:
+        - DebitCard
+      summary: Create a new debit card
+      operationId: createDebitCard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DebitCardRequestDto'
+      responses:
+        '201':
+          description: Debit card created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebitCardResponseDto'
+        '400':
+          description: Invalid request
+        '409':
+          description: Customer has pending debts
+    get:
+      tags:
+        - DebitCard
+      summary: Get all debit cards by customer
+      operationId: getDebitCardsByCustomer
+      parameters:
+        - name: customerId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Customer ID to filter cards
+      responses:
+        '200':
+          description: List of debit cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DebitCardResponseDto'
+
+  /debit-cards/{cardId}:
+    get:
+      tags:
+        - DebitCard
+      summary: Get debit card details
+      operationId: getDebitCard
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Debit card ID
+      responses:
+        '200':
+          description: Debit card details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebitCardResponseDto'
+        '404':
+          description: Debit card not found
+
+  /debit-cards/{cardId}/accounts:
+    post:
+      tags:
+        - DebitCard
+      summary: Associate account to debit card
+      operationId: associateAccount
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Debit card ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountAssociationRequestDto'
+      responses:
+        '200':
+          description: Account associated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebitCardResponseDto'
+        '404':
+          description: Debit card or account not found
+
+  /debit-cards/{cardId}/accounts/primary:
+    put:
+      tags:
+        - DebitCard
+      summary: Update primary account
+      operationId: updatePrimaryAccount
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Debit card ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrimaryAccountRequestDto'
+      responses:
+        '200':
+          description: Primary account updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebitCardResponseDto'
+        '404':
+          description: Debit card or account not found
+
+  /debit-cards/{cardId}/balance:
+    get:
+      tags:
+        - DebitCard
+      summary: Get primary account balance
+      operationId: getPrimaryAccountBalance
+      parameters:
+        - name: cardId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Debit card ID
+      responses:
+        '200':
+          description: Primary account balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponseDto'
+        '404':
+          description: Debit card not found
+
+components:
+  schemas:
+    DebitCardRequestDto:
+      type: object
+      required:
+        - customerId
+        - primaryAccountId
+      properties:
+        customerId:
+          type: string
+          description: ID del cliente que solicita la tarjeta
+        primaryAccountId:
+          type: string
+          description: ID de la cuenta que será establecida como principal
+
+    DebitCardResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identificador único de la tarjeta de débito
+        cardNumber:
+          type: string
+          description: Número de tarjeta enmascarado
+        customerId:
+          type: string
+          description: ID del cliente propietario de la tarjeta
+        primaryAccountId:
+          type: string
+          description: ID de la cuenta principal asociada
+        associatedAccountIds:
+          type: array
+          description: Lista de IDs de cuentas asociadas en orden de prioridad
+          items:
+            type: string
+        creationDate:
+          type: string
+          format: date-time
+          description: Fecha de creación de la tarjeta
+        active:
+          type: string
+          description: Estado de activación de la tarjeta
+
+    AccountAssociationRequestDto:
+      type: object
+      required:
+        - accountId
+      properties:
+        accountId:
+          type: string
+          description: ID de la cuenta a asociar con la tarjeta
+
+    PrimaryAccountRequestDto:
+      type: object
+      required:
+        - accountId
+      properties:
+        accountId:
+          type: string
+          description: ID de la nueva cuenta principal
+
+    BalanceResponseDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+          description: ID de la cuenta principal
+        balance:
+          type: number
+          format: double
+          description: Saldo actual disponible
+        lastUpdateDate:
+          type: string
+          format: date-time
+          description: Fecha y hora de la última actualización del saldo

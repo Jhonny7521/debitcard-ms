@@ -1,4 +1,4 @@
-package com.bm_nttdata.debitCard_ms;
+package com.bm_nttdata.debitcard_ms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
