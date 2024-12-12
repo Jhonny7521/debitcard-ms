@@ -4,7 +4,11 @@ import com.bm_nttdata.debitcard_ms.dto.AccountDto;
 import com.bm_nttdata.debitcard_ms.dto.CustomerDto;
 import com.bm_nttdata.debitcard_ms.entity.DebitCard;
 import com.bm_nttdata.debitcard_ms.entity.enums.CardStatusEnum;
-import com.bm_nttdata.debitcard_ms.exception.*;
+import com.bm_nttdata.debitcard_ms.exception.AccountNotFoundException;
+import com.bm_nttdata.debitcard_ms.exception.ApiInvalidRequestException;
+import com.bm_nttdata.debitcard_ms.exception.BusinessRuleException;
+import com.bm_nttdata.debitcard_ms.exception.DebitCardNotFoundException;
+import com.bm_nttdata.debitcard_ms.exception.ResourceNotFoundException;
 import com.bm_nttdata.debitcard_ms.mapper.DebitCardMapper;
 import com.bm_nttdata.debitcard_ms.model.AccountAssociationRequestDto;
 import com.bm_nttdata.debitcard_ms.model.BalanceResponseDto;
@@ -91,28 +95,28 @@ public class DebitCardServiceImpl implements DebitCardService {
                 .flatMap(request ->
                         validateCustomerAndAccount(request)
                                 .then(checkCustomerDebts(request.getCustomerId()))
-                        .flatMap(hasDebts -> {
-                                if (hasDebts) {
+                                .flatMap(hasDebts -> {
+                                    if (hasDebts) {
                                         return Mono.error(
-                                                new BusinessRuleException(
-                                                        "Customer has overdue debts"));
-                                }
+                                            new BusinessRuleException(
+                                                "Customer has overdue debts"));
+                                    }
 
-                                LocalDate expDate = LocalDate.now().plusMonths(36);
-                                YearMonth month = YearMonth.from(expDate);
-                                Random random = new Random();
+                                    LocalDate expDate = LocalDate.now().plusMonths(36);
+                                    YearMonth month = YearMonth.from(expDate);
+                                    Random random = new Random();
 
-                                DebitCard debitCard =
-                                        debitCardMapper
-                                                .debitCardRequestToDebitCardEntity(request);
-                                debitCard.setCardNumber(generateCardNumber());
-                                debitCard.setCardPin(String.valueOf(random.nextInt(10000)));
-                                debitCard.setCcvCode(String.valueOf(random.nextInt(1000)));
-                                debitCard.setCreationDate(LocalDateTime.now());
-                                debitCard.setExpirationDate(String.valueOf(month));
-                                debitCard.setActive(CardStatusEnum.ACTIVE);
-                                return debitCardRepository.save(debitCard);
-                        }))
+                                    DebitCard debitCard =
+                                            debitCardMapper
+                                                    .debitCardRequestToDebitCardEntity(request);
+                                    debitCard.setCardNumber(generateCardNumber());
+                                    debitCard.setCardPin(String.valueOf(random.nextInt(10000)));
+                                    debitCard.setCcvCode(String.valueOf(random.nextInt(1000)));
+                                    debitCard.setCreationDate(LocalDateTime.now());
+                                    debitCard.setExpirationDate(String.valueOf(month));
+                                    debitCard.setActive(CardStatusEnum.ACTIVE);
+                                    return debitCardRepository.save(debitCard);
+                                }))
                 .map(debitCardMapper::debitCardEntityToDebitCardDto);
     }
 
@@ -237,7 +241,9 @@ public class DebitCardServiceImpl implements DebitCardService {
                 .retrieve()
                 .bodyToMono(CustomerDto.class)
                 .onErrorResume(WebClientResponseException.NotFound.class, e ->
-                        Mono.error(new ResourceNotFoundException("Customer not found with ID: " + request.getCustomerId())))
+                        Mono.error(
+                                new ResourceNotFoundException(
+                                        "Customer not found with ID: " + request.getCustomerId())))
                 .onErrorResume(e -> {
                     log.error("Error calling customer service: {}", e.getMessage());
                     return Mono.error(new RuntimeException("Customer Service Unavailable"));
@@ -249,7 +255,10 @@ public class DebitCardServiceImpl implements DebitCardService {
                 .retrieve()
                 .bodyToMono(AccountDto.class)
                 .onErrorResume(WebClientResponseException.NotFound.class, e ->
-                        Mono.error(new ResourceNotFoundException("Account not found with ID: " + request.getPrimaryAccountId())))
+                        Mono.error(
+                                new ResourceNotFoundException(
+                                        "Account not found with ID: "
+                                                + request.getPrimaryAccountId())))
                 .onErrorResume(e -> {
                     log.error("Error calling account service: {}", e.getMessage());
                     return Mono.error(new RuntimeException("Account Service Unavailable"));
@@ -258,6 +267,7 @@ public class DebitCardServiceImpl implements DebitCardService {
         return Mono.zip(customerValidation, accountValidation)
                 .then();
     }
+
     private Mono<Boolean> checkCustomerDebts(String customerId) {
         Mono<Boolean> creditDebts = webClient.build()
                 .get()
@@ -275,7 +285,8 @@ public class DebitCardServiceImpl implements DebitCardService {
                 .retrieve()
                 .bodyToMono(Boolean.class)
                 .onErrorResume(e -> {
-                    log.error("Error calling credit-ms service for credit cards: {}", e.getMessage());
+                    log.error(
+                            "Error calling credit-ms service for credit cards: {}", e.getMessage());
                     return Mono.error(new RuntimeException("Credit Card Service Unavailable"));
                 });
 

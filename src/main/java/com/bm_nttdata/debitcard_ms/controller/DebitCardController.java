@@ -1,15 +1,11 @@
 package com.bm_nttdata.debitcard_ms.controller;
 
 import com.bm_nttdata.debitcard_ms.api.DebitCardApi;
-import com.bm_nttdata.debitcard_ms.entity.DebitCard;
-import com.bm_nttdata.debitcard_ms.mapper.DebitCardMapper;
 import com.bm_nttdata.debitcard_ms.model.AccountAssociationRequestDto;
 import com.bm_nttdata.debitcard_ms.model.BalanceResponseDto;
 import com.bm_nttdata.debitcard_ms.model.DebitCardRequestDto;
 import com.bm_nttdata.debitcard_ms.model.DebitCardResponseDto;
 import com.bm_nttdata.debitcard_ms.model.PrimaryAccountRequestDto;
-import com.bm_nttdata.debitcard_ms.model.TransactionRequestDto;
-import com.bm_nttdata.debitcard_ms.model.TransactionResponseDto;
 import com.bm_nttdata.debitcard_ms.service.DebitCardService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;

@@ -133,60 +133,6 @@ paths:
         '404':
           description: Debit card or account not found
 
-  /debit-cards/{cardId}/transactions:
-    post:
-      tags:
-        - DebitCard
-      summary: Process debit card transaction
-      operationId: processTransaction
-      parameters:
-        - name: cardId
-          in: path
-          required: true
-          schema:
-            type: string
-          description: Debit card ID
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TransactionRequestDto'
-      responses:
-        '200':
-          description: Transaction processed successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TransactionResponseDto'
-        '400':
-          description: Invalid transaction
-        '404':
-          description: Debit card not found
-        '422':
-          description: Insufficient funds
-    get:
-      tags:
-        - DebitCard
-      summary: Get last 10 transactions
-      operationId: getLastTransactions
-      parameters:
-        - name: cardId
-          in: path
-          required: true
-          schema:
-            type: string
-          description: Debit card ID
-      responses:
-        '200':
-          description: List of last 10 transactions
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TransactionResponseDto'
-
   /debit-cards/{cardId}/balance:
     get:
       tags:
@@ -270,48 +216,6 @@ components:
         accountId:
           type: string
           description: ID de la nueva cuenta principal
-
-    TransactionRequestDto:
-      type: object
-      required:
-        - amount
-        - type
-      properties:
-        amount:
-          type: number
-          format: double
-          description: Monto de la transacción
-        type:
-          type: string
-          enum: [PAYMENT, WITHDRAWAL]
-          description: Tipo de transacción (PAGO o RETIRO)
-        description:
-          type: string
-          description: Descripción de la transacción
-
-    TransactionResponseDto:
-      type: object
-      properties:
-        id:
-          type: string
-          description: ID único de la transacción
-        debitCardId:
-          type: string
-          description: ID de la tarjeta de débito utilizada
-        type:
-          type: string
-          description: Tipo de transacción realizada
-        amount:
-          type: number
-          format: double
-          description: Monto de la transacción
-        sourceAccountId:
-          type: string
-          description: ID de la cuenta utilizada para la transacción
-        transactionDate:
-          type: string
-          format: date-time
-          description: Fecha y hora de la transacción
 
     BalanceResponseDto:
       type: object
